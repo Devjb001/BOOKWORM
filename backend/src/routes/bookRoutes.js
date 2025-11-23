@@ -6,38 +6,90 @@ import protectRoute from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
+// Multer setup: store files in memory temporarily
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 // CREATE BOOK ROUTE
-router.post("/create-book", protectRoute, async(req, res) => {
+router.post(
+  "/create-book",
+  protectRoute,
+  upload.single("image"),
+  async (req, res) => {
     try {
-        const {title, caption, image, rating} = req.body;
+      const { title, caption, rating } = req.body;
 
-        if(!title || !caption || !image || !rating){
-            return res.status(400).json({message : "Pls provide all fields "});
-        }
+      if (!title || !caption || !rating || !req.file) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
 
-        // upload to cloudinary
-        const uploadResponse = await cloudinary.uploader.upload(image);
-        const imageUrl = uploadResponse.secure_url;
+      // Upload to Cloudinary using buffer
+      const streamUpload = (fileBuffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "bookworm" },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          stream.end(fileBuffer);
+        });
+      };
 
-        const newBook = new Book({
-            title,
-            caption,
-            rating,
-            image: imageUrl,
-            user: req.user._id
-        })
+      const uploadResponse = await streamUpload(req.file.buffer);
 
-        await newBook.save();
+      const newBook = new Book({
+        title,
+        caption,
+        rating,
+        image: uploadResponse.secure_url,
+        user: req.user._id,
+      });
 
-        res.status(201).json({
-            message : "Book created successfully",
-            book : newBook
-        })
+      await newBook.save();
+
+      res.status(201).json({
+        message: "Book created successfully",
+        book: newBook,
+      });
     } catch (error) {
-        console.log("error creating book", error  );
-        res.status(500).json({message : "Server error"});
+      console.error("Error creating book", error);
+      res.status(500).json({ message: "Server error" });
     }
-});
+  }
+);
+// router.post("/create-book", protectRoute, async(req, res) => {
+//     try {
+//         const {title, caption, image, rating} = req.body;
+
+//         if(!title || !caption || !image || !rating){
+//             return res.status(400).json({message : "Pls provide all fields "});
+//         }
+
+//         // upload to cloudinary
+//         const uploadResponse = await cloudinary.uploader.upload(image);
+//         const imageUrl = uploadResponse.secure_url;
+
+//         const newBook = new Book({
+//             title,
+//             caption,
+//             rating,
+//             image: imageUrl,
+//             user: req.user._id
+//         })
+
+//         await newBook.save();
+
+//         res.status(201).json({
+//             message : "Book created successfully",
+//             book : newBook
+//         })
+//     } catch (error) {
+//         console.log("error creating book", error  );
+//         res.status(500).json({message : "Server error"});
+//     }
+// });
 
 
 // GET ALL BOOKS ROUTE
