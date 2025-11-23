@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import cloudinary from "../config/cloudinary.js"
 import Book from '../models/Book.js';
 import protectRoute from '../middleware/auth.middleware.js';
+import multer from 'multer';
 
 
 const router = express.Router();
