@@ -60,38 +60,6 @@ router.post(
     }
   }
 );
-// router.post("/create-book", protectRoute, async(req, res) => {
-//     try {
-//         const {title, caption, image, rating} = req.body;
-
-//         if(!title || !caption || !image || !rating){
-//             return res.status(400).json({message : "Pls provide all fields "});
-//         }
-
-//         // upload to cloudinary
-//         const uploadResponse = await cloudinary.uploader.upload(image);
-//         const imageUrl = uploadResponse.secure_url;
-
-//         const newBook = new Book({
-//             title,
-//             caption,
-//             rating,
-//             image: imageUrl,
-//             user: req.user._id
-//         })
-
-//         await newBook.save();
-
-//         res.status(201).json({
-//             message : "Book created successfully",
-//             book : newBook
-//         })
-//     } catch (error) {
-//         console.log("error creating book", error  );
-//         res.status(500).json({message : "Server error"});
-//     }
-// });
-
 
 // GET ALL BOOKS ROUTE
 router.get("/books", protectRoute, async(req, res) => {

@@ -39,7 +39,7 @@ router.post('/register',  async (req , res)=> {
         }
 
 
-        const profileImage = `https://api.dicebear.com/9.x/avataaars/svg?seed=${username}`
+        const profileImage = `https://api.dicebear.com/9.x/avataaars/png?seed=${username}`
         const user = new User({
             email,
             password,
