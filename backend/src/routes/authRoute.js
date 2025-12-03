@@ -44,7 +44,8 @@ router.post('/register',  async (req , res)=> {
             email,
             password,
             username,
-            profileImage
+            profileImage,
+            createdAt : new Date()
         })
         await user.save();
         const token = generateToken(user._id)
@@ -56,7 +57,8 @@ router.post('/register',  async (req , res)=> {
                 username: user.username,
                 email: user.email,
                 password: user.password,
-                profileImage: user.profileImage
+                profileImage: user.profileImage,
+                createdAt: user.createdAt
             }
         })
     } catch (error) {
