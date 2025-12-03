@@ -124,10 +124,12 @@ router.delete("/book/:id", protectRoute, async(req, res) => {
 // GET YOUR RECOMMENDED BOOKS
 router.get("/recommended-books", protectRoute, async(req, res) =>{
     try {
-        const userBooks = (await Book.find({user : req.user._id})).sort({createdAt : -1});
+        const userBooks = await Book.find({user : req.user._id}).sort({createdAt : -1});
+        
         if(userBooks.length === 0){
             return res.status(200).json({recommendedBooks : []});
         }
+        
         res.status(200).json({recommendedBooks : userBooks});
     } catch (error) {
         console.log("error fetching recommended books", error);
